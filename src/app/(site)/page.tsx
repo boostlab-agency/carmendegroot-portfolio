@@ -55,23 +55,27 @@ export default async function HomePage() {
 
           <div className="relative md:col-span-5 md:pt-6">
             {/* The chartreuse band from the CV, running behind the portrait */}
-            <div aria-hidden className="absolute -left-[50vw] -right-[50vw] top-[42%] h-[18%] origin-left animate-band-in bg-accent [animation-delay:300ms] md:-left-[20vw]" />
-            <div className="relative mx-auto aspect-[4/5] w-full max-w-[460px] overflow-hidden rounded-bl-2xl rounded-br-[9rem] rounded-tl-[9rem] rounded-tr-2xl bg-paper-2 shadow-[0_40px_80px_-40px_rgb(17_17_16/0.45)] animate-rise [animation-delay:200ms] md:rounded-br-[11rem] md:rounded-tl-[11rem]">
-              <Image
-                src={settings.portraitUrl}
-                alt={`Portret van ${settings.siteName}`}
-                fill
-                priority
-                sizes="(min-width: 768px) 460px, 100vw"
-                className="object-cover object-[50%_30%]"
-              />
+            {/* Desktop: the band starts behind the portrait (column centre), so it
+                never runs under the headline and never sticks out on the left. */}
+            <div aria-hidden className="absolute -left-[50vw] -right-[50vw] top-[42%] h-[18%] origin-left animate-band-in bg-accent [animation-delay:300ms] md:left-1/2" />
+            <div className="relative mx-auto w-full max-w-[460px]">
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-bl-2xl rounded-br-[9rem] rounded-tl-[9rem] rounded-tr-2xl bg-paper-2 shadow-[0_40px_80px_-40px_rgb(17_17_16/0.45)] animate-rise [animation-delay:200ms] md:rounded-br-[11rem] md:rounded-tl-[11rem]">
+                <Image
+                  src={settings.portraitUrl}
+                  alt={`Portret van ${settings.siteName}`}
+                  fill
+                  priority
+                  sizes="(min-width: 768px) 460px, 100vw"
+                  className="object-cover object-[50%_30%]"
+                />
+              </div>
+              {settings.availableForWork && settings.availability && (
+                <p className="absolute -bottom-4 left-0 inline-flex items-center gap-2.5 rounded-full border border-line bg-paper/90 px-4 py-2.5 text-sm shadow-sm backdrop-blur md:-left-6 md:bottom-10">
+                  <span className="h-2 w-2 animate-pulse-dot rounded-full bg-accent ring-1 ring-ink/20" aria-hidden />
+                  {settings.availability}
+                </p>
+              )}
             </div>
-            {settings.availableForWork && settings.availability && (
-              <p className="absolute -bottom-4 left-0 inline-flex items-center gap-2.5 rounded-full border border-line bg-paper/90 px-4 py-2.5 text-sm shadow-sm backdrop-blur md:-left-6 md:bottom-10">
-                <span className="h-2 w-2 animate-pulse-dot rounded-full bg-accent ring-1 ring-ink/20" aria-hidden />
-                {settings.availability}
-              </p>
-            )}
           </div>
         </div>
 
