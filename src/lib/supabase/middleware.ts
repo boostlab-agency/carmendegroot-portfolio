@@ -37,7 +37,9 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && pathname === "/admin/login") {
+  // Signed-in users don't need the login page — unless it is showing an
+  // access error (otherwise /admin ⇄ /admin/login would loop).
+  if (user && pathname === "/admin/login" && !request.nextUrl.searchParams.has("error")) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin";
     url.search = "";

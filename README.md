@@ -59,7 +59,11 @@ npm run dev                     # http://localhost:3000
 ## 2. Supabase inrichten
 
 1. Maak een project aan op [supabase.com](https://supabase.com). Kies regio **West EU (Frankfurt/Ireland)**.
-2. **Database schema.** Open *SQL Editor*, plak de inhoud van [`supabase/migrations/20261109000000_init.sql`](supabase/migrations/20261109000000_init.sql) en klik op *Run*. Dit maakt alle tabellen, RLS-policies, triggers en de Storage-bucket `media` aan. Met de Supabase CLI kan het ook via `supabase link` en daarna `supabase db push`.
+2. **Database schema.** Open *SQL Editor* en voer **alle** bestanden uit `supabase/migrations/` uit, op volgorde van bestandsnaam:
+   1. [`20261109000000_init.sql`](supabase/migrations/20261109000000_init.sql): tabellen, RLS-policies, triggers en de Storage-bucket `media`
+   2. [`20261110000000_fix_admin_access.sql`](supabase/migrations/20261110000000_fix_admin_access.sql): expliciete GRANTs en de RPC `get_my_profile()` (zie [Probleemoplossing](#probleemoplossing))
+
+   Met de Supabase CLI kan het ook via `supabase link` en daarna `supabase db push`. Beide migraties zijn veilig om opnieuw uit te voeren.
 3. **Sleutels.** Ga naar *Project Settings → API* en zet in `.env.local`:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
@@ -229,6 +233,25 @@ De zes projecten in `src/content/projects.ts` zijn **fictieve, realistische case
 - **Portretfoto** (`public/images/carmen-de-groot.png`) en **cv-PDF** (`public/cv/carmen-de-groot-cv.pdf`) komen uit het meegeleverde cv. Je vervangt ze via *Instellingen → Bestanden*.
 
 ---
+
+## Probleemoplossing
+
+**"Dit account heeft geen toegang tot het CMS", terwijl de rol op `admin` staat**
+
+De rol `authenticated` mist leesrechten (GRANT) op de tabellen. Row Level Security bepaalt welke rijen zichtbaar zijn, maar zonder GRANT komt een rol niet eens bij de tabel. De init-migratie leunde op de standaard-privileges van Supabase, en die zijn niet in elk project aanwezig.
+
+Oplossing: voer `supabase/migrations/20261110000000_fix_admin_access.sql` uit in de SQL Editor. Controleren kan met:
+
+```sql
+select grantee, privilege_type
+from information_schema.role_table_grants
+where table_schema = 'public' and table_name = 'profiles';
+-- verwacht o.a.: authenticated | SELECT
+```
+
+**"Je rechten konden niet worden gecontroleerd"**
+
+De databasecontrole gaf een fout. Bekijk in Vercel → *Logs* de regel `[admin/auth] Rol-controle mislukt`; daar staan de foutcode en de melding van Postgres.
 
 ## 10. Checklist voor lancering
 
